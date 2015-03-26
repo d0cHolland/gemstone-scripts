@@ -1,0 +1,147 @@
+@lockpickContainer = "case"
+@boxTypes = ['box', 'coffer', 'strongbox', 'chest', 'trunk']
+@openMessages = ["Then...CLICK!  It opens!", "It does not appear to be locked." ]
+@rightHand = checkright
+$snp_Array_Trap_Stow = ["^You'll need at least one hand free or to be holding the .+\\.$",
+		"^You'll need both hands free or to be holding the .+\\.$"]
+$snp_Array_Trap_Nrml = ["^After carefully examining the lock, you move on to the hinges of the .+.  Just as you were to pass the .+ off as safe, you notice what appears to be the ends of springs incorporated with the hinges\\.  Seems rather odd to have a .+ designed to spring open when it is unlocked\\.$",
+		"^Carefully, you feel around the lock and notice the inside chamber is coated with a strange white substance\\.  From your experience you recognize this as a common magical\\/chemical detonation system for an explosive mixture that was used to treat the .+\\.$",
+		"^Feeling around the inside of the lock, you notice that the casing is coated with a rough, grainy substance\\.  You lean forward and peer between the walls of the casing\\.  Examining the lock closely, you notice a small bladder filled with a strange liquid wedged between the tumblers\\.  With your face this close to the lock, you pick up the faintest scent of sulphur\\.$",
+		"^Hmmm, you can see what appears to be a tiny hole next to the lock plate which doesn't seem to belong there\\.  Looking closer you see a gleaming sliver of metal recessed in the hole\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small vial of fire-red liquid and a tiny hammer device which seems poised to shatter it if the lock is tampered with\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small vial of liquid and a tiny hammer device which seems poised to shatter it if the lock is tampered with\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small, dark crystal which seems imbedded in the locking mechanism\\.  It looks as if opening the lock without the exact key could shatter it\\.$",
+		"^Looking closely into the keyhole, you notice a pair of small metal rods a hair's width from touching each other\\.  Peering around the inside of the keyhole, you can see that the lock would push the two rods together should the lock be tampered with\\.$",
+		"^Peering closely into the lock, you spy a glimmering opalescent scarab wedged into the lock mechanism\\.  The scarab's surface is etched with tiny runes that seem to writhe as the light strikes them\\.$",
+		"^Peering closely into the lock, you spy a miniature blood red scarab wedged into the lock mechanism\\.  The scarab's shell is etched on the back with a dark teardrop-shaped pattern surrounded by tiny runes\\.$",
+		"^Peering closely into the lock, you spy a miniature sea-green glaes scarab wedged into the lock mechanism\\.  The scarab's surface is etched with tiny runes that seem to writhe as the light strikes them\\.$",
+		"^Peering closely into the lock, you spy a miniature sky-blue glaes scarab wedged into the lock mechanism\\.  The scarab's surface is etched with tiny runes that seem to writhe as the light strikes them\\.$",
+		"^Peering closely into the lock, you spy a tiny onyx scarab wedged into the lock mechanism\\.  The scarab's shell is covered with spiky inward-curving protrusions which resemble fangs\\.$",
+		"^Peering closely into the lock, you spy a tiny translucent scarab wedged into the lock mechanism\\.  The scarab's shell is etched on the back with a large eye that seems to shift lazily about\\.$",
+		"^Peering closely into the lock, you spy a tiny vial placed just past the tumblers of the lock mechanism\\.  It would appear that any tampering with the lock mechanism would cause the tumblers to crush the vial and release whatever substance is inside\\.$",
+		"^Peering into the .+'s lock, you see a small tube towards the bottom of the tumbler mechanism\\.  The tube is capped with a thin membrane, but it seems likely that the tumblers would tear it off while turning\\.$",
+		"^The darn thing is built too tightly\\.  You can't seem to get the trap disarmed without setting it off by accident!$",
+		"^There appears to be a plate over the lock, sealing it and preventing any access to the tumblers\\.$",
+		"^You are not able to disarm the trap but you get a sense that you could have had it with a little more luck\\.$",
+		"^You can see what appears to be a tiny hole next to the lock plate which doesn't seem to belong there\\.  Looking inside, you see what appears to be a little flag rolled around a thin rod\\.$",
+		"^You notice a discolored oval ring around the outside of the .+ which makes you suspicious\\.  Your suspicions are confirmed when you look inside the keyhole and notice the spring-loaded jaws pressed flush against the .+ walls\\.$",
+		"^You notice some spiderweb-like scratches on the lock plate which seem, after some bit of scrutiny, too organized to be just wear and tear -- it might be some type of glyph spell\\.$"]
+$snp_Array_Trap_Dagg = ["^You carefully open the lid of the .+ the tiniest bit, and peer inside\\.  To one side of the locking mechanism, you can see what appears to be a thin cord connecting the lid to something within the .+ itself\\.$",
+		"^You figure that if you had a dagger, you could probably cut the cord\\.$"]
+$snp_Array_Trap_WPik = ["^Examining the .+, you locate a .+ sphere held in a metal bracket towards the back of the lock mechanism\\.  The spherical crystal .+ It appears that were the tumblers to be activated, the gem would be caught amongst them\\.$",
+		"^No matter how you try, your fingers are just too big to get back there to the gem\\.  You'll need some sort of thin, rigid implement like a lockpick\\.$"]
+$snp_Array_Trap_Scle = ["^At first glance, the .+ appears to be covered with hundreds of tiny metal scales\\.  Closer examination reveals the \\\"scales\\\" to be razor sharp at the edges and possessing of a downward-facing needlelike tip\\.  However, you should be able to avoid cutting yourself if you are careful\\.$",
+		"^Despite heavy scrutiny, you can see no way to pry off any of the scales, nor any particular reason to.  With a modicum of caution, they should present no danger\\.  Nothing else about the .+ suggests that it is trapped\\.$"]
+$snp_Array_Trap_DSrb = ["^You carefully nudge the scarab free of its prison without disturbing the lock too much\\.  The scarab falls from the lock and onto the ground in front of you\\.$"]
+$snp_Array_Trap_GSrb = ["^Deciphering the runes is relatively simple, and you're pretty sure you were successful\\.$",
+		"^You feel like you probably rendered the .+ scarab harmless, but can't be sure\\.$",
+		"^\\*scritch scritch\\*  If that had been any easier, you could have done it blindfolded\\.$"]
+$snp_Array_Trap_Wedg = ["^As you poke around inside the lock mechanism, you hear the sound of glass shattering\\.  You peer inside the lock and see that the tumblers have all been fused into a lump of useless metal by the acid spilled from the tiny vial set into the lock\\.$",
+		"^You peer inside the lock and see that the tumblers have been fused into a lump of useless metal\\.$"]
+$snp_Array_Trap_Vial = ["^You don't seem to have any way to get through that metal plate covering the lock\\.  Gonna chew through it\\?$"]
+$snp_Array_Trap_Safe = ["^A thin layer of mud or putty has been dabbed on the connecting point of the striking arm and the white substance to prevent it from igniting the .+ when it is unlocked\\.$",
+		"^A thorough and careful search of the lock mechanism indicates that the entire .+ is MANGLED.  It's probably not trapped anymore\\.$",
+		"^A thorough search of the area inside the tumblers reveals what appears to be a metal bracket of some sort, although it seems to be empty now\\.$",
+		"^Feeling around the inside of the lock, you notice that the casing is coated with a rough, grainy substance\\.  A small section of the casing has been scraped clean of the strange substance\\.  You lean forward and peer between the walls of the casing\\.  Examining the lock closely, you notice a deflated bladder wedged between the tumblers\\.  There is a small hole in the bladder, most likely from whatever ruptured it\\.  The lock emanates a strong scent of sulphur\\.$",
+		"^Knowing how delicate magical glyphs can be, you scrape some extra lines into the markings hoping to alter their meaning and defeat the spell they may hold\\.$",
+		"^Looking closely at the lock, you spy a small metal housing set just inside the lock mechanism, but it appears empty\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small metal housing, which appears to be empty\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small vial of fire-red liquid and a tiny hammer device which has been bent from striking range of the vial\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small vial of liquid and a tiny hammer device which has been bent from striking range of the vial\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a small, dark crystal which seems imbedded in the locking mechanism\\.  It looks as if opening the lock without the exact key could shatter it, but parts of the mechanism have been ground away to avoid unwanted contact with the crystal\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a tiny hammer device and several splinters of glass\\.$",
+		"^Looking closely into the keyhole of the lock, you spy a tiny hammer device which has been bent back slightly\\.$",
+		"^Looking closely into the keyhole, you notice a pair of small metal rods that have a slight reddish glow about them\\.$",
+		"^Looking closely into the keyhole, you notice a pair of small metal rods that have been bent in opposite directions of each other\\.$",
+		"^Peering closely into the lock, you spy a tiny vial placed just past the tumblers of the lock mechanism\\.  A small ball of cotton has been pushed up against the vial, protecting it from anything that may shatter it\\.$",
+		"^Peering in through the crack between the lid and the casing, you see what appears to be a thin cord dangling from the case\\.  It looks to have been sliced through\\.$",
+		"^Peering into the .+'s lock, you see a small tube towards the bottom of the tumbler mechanism\\.  It appears as though the tube has been plugged with something\\.$",
+		"^Peering into the .+'s lock, you see a small tube towards the bottom of the tumbler mechanism\\.  A crimson glow surrounds the mouth of the tube\\.$",
+		"^Peering into the .+'s lock, you see a small tube towards the bottom of the tumbler mechanism\\.  It appears as though the tube used to be covered with a thin membrane, but it has torn mostly away, and greyish-green powder covers the area around it\\.$",
+		"^Reaching inside the hole with the tip of your lockpick, you nudge the end of the flag to one side, so it will collide with the inside of its housing, should it try to emerge\\.$",
+		"^Suddenly, a tiny flag pops out of a hole next to the lockplate with a metallic CLICK!  The flag vibrates there for a moment, then unfurls slowly, revealing a bright red starburst pattern on a white background\\.  Written in big black letters inside the starburst is the word \\\"BOOM!\\\"$",
+		"^Taking a lump of putty from your .+, you carefully apply it to the end of the small tube\\.  That should block whatever it's meant to deploy\\.$",
+		"^The lock appears to be free of all obstructions\\.$",
+		"^Using a bit of putty from your .+, you cake a thin layer on the lock casing, hopefully sufficient to prevent sparks when the metal arm strikes it\\.$",
+		"^Using a bit of putty from your .+, you manage to block the tiny hole in the lock plate\\.$",
+		"^Using a pair of metal grips, you carefully remove a slender steel needle from the .+ and cover the tip with a bit of putty\\.$",
+		"^Using the metal grips from your .+, you manage to reach in and grasp the post of the metal hammer, and bend the weak metal out of striking range of the vial\\.$",
+		"^Using the pair of metal grips, you manage to pull out the two pins that hold the upper and lower jaw pieces together\\.  As the pins are removed, the jaws suddenly close and warp under the tremendous strain applied by their arming mechanism\\.$",
+		"^Using the pair of metal grips, you manage to pull out the two pins that hold the upper and lower jaw pieces together\\.$",
+		"^Using your metal grips, you carefully remove a pair of small steel jaws from the .+ before piecing the apparatus back together\\.$",
+		"^With a little force applied to the springs, you manage to pop them inside the .+, from within which comes the tinkle of breaking glass, followed by a strong acrid smell\\.$",
+		"^With a little force applied to the springs, you manage to pop them inside the .+, where they bounce around for a moment\\.  You also hear something else rolling around in there\\.$",
+		"^With a little ingenuity you manage to grind down parts of the lock mechanism with your metal file, so it won't come in contact with the crystal when you try to open it\\.$",
+		"^With great care you take a pair of metal grips and bend the sensitive metal rods out of alignment\\.  It looks as though they cannot be pressed together by the lock mechanism any more\\.$",
+		"^With utmost care, you slip your .+ into the lock and gently nudge the tiny gem until it begins to work loose and its inner glow begins to fade\\.  Another moment of prodding, and you are able to poke the gem free of its metal housing, whereupon it falls down into the lock mechanism and out of sight\\.$",
+		"^With utmost care, you slip your .+ into the lock and gently nudge the tiny gem until it begins to work loose and its inner glow begins to fade\\.  Suddenly, it violently pops free of its metal housing and bounces around inside the tumblers for a moment before vanishing down into the .+!$",
+		"^With utmost care, you slip your .+ into the lock and gently nudge the tiny gem until it begins to work loose and its inner glow begins to fade\\.  Tilting the .+ forward, you knock the gem free of its metal housing and poke it out through the back of the lock, allowing it to gently roll down the inside of the .+'s front wall\\.$",
+		"^You can see what appears to be a tiny hole next to the lock plate which doesn't seem to belong there\\.  However, nothing about it seems to indicate cause for alarm\\.$",
+		"^You carefully pour the contents of a.+ onto the .+ where you think the keyhole ought to be\\.  Amidst a cloud of acrid smoke, the metal plate covering the lock begins to melt away\\.$",
+		"^You carefully push a small ball of cotton into the lock mechanism, surrounding and protecting the small vial from anything that may shatter it\\.$",
+		"^You carefully use the tip of a small metal file to scrape away the rough, grainy substance which lines the walls of the casing\\.  After a few moments, you feel comfortable with the small section you have cleaned\\.  You take out a thin needle and carefully slide it between the walls of the casing, taking great care not to touch them.  As the tip of the needle punctures the small bladder, a strange clear gel oozes forth from the hole\\.  The gel gives off a strong odor of sulphur\\.  As the air hits the gel, it begins to harden and turn to dust, blowing away in the wind as if it never existed\\.$",
+		"^You discover no traps\\.$",
+		"^You notice a discolored oval ring around the outside of the .+ which makes you suspicious\\.  Your suspicions are confirmed when you look inside the keyhole and notice the spring-loaded jaws pressed flush against the .+ walls, but the pins that hold the jaws together have been pushed out\\.$",
+		"^You notice a discolored oval ring around the outside of the a.+, but further examination gives the impression that some vital part of whatever trap was here has been removed\\.$",
+		"^You notice some spiderweb-like scratches on the lock plate which seem, after some bit of scrutiny, too organized to be just wear and tear -- it might be some type of glyph spell, but some of the markings have been altered\\.  This may prevent any magical nature they have from manifesting itself\\.$",
+		"^You see a metal plate covering the lock plate, but it appears to have been melted through, granting sufficient access to the lock to attempt picking it\\.$",
+		"^You see a tiny hole next to the lock plate which has been completely plugged\\.$",
+		"^You take a vial out of your .+ and carefully pour the contents onto the .+ where you think the keyhole ought to be\\.  Amidst a cloud of acrid smoke, the metal plate covering the lock begins to melt away\\.$"]
+$snp_Array_Trap_Need = ["^It looks like you would need a needle of some sort to puncture that sack\\.$",
+		"^You figure that if you could reach in there, you could pull the jaws apart\\.  You'll probably need some sort of gripping tool\\.$",
+		"^You figure that if you had a cotton ball, you could probably cushion the vial against breakage\\.$",
+		"^You figure that if you had some sort of putty or even some mud, you could block the hole and prevent whatever it contains from coming out, but there is nothing useful to be found here\\.$",
+		"^You figure that if you had some sort of putty or even some mud, you could pack it inside the lock mechanism and prevent the striking arm from igniting it\\.  Unfortunately, nothing like that seems to be handy\\.$"]
+$snp_Array_Trap_Hurt = ["^As you poke around inside the lock mechanism,  you hear the buzzing of a tiny insect coming from within\\.  Suddenly, something darts out of the lock and flies straight at you!  You attempt to duck out of the way, but it weaves with you and lands on your neck!  You gasp in horror as you feel its stinger enter your flesh and you clap your hand to your neck to stop it, but there is nothing there\\.  You suddenly feel very ill\\.$",
+		"^As you poke around inside the lock, you hear a clicking noise coming from within a.+\\.  A tiny blood red insect with a large teardrop etched on its shell scuttles out of the locking mechanism and darts towards you!$",
+		"^Ouch!  You feel a tiny prick in your finger!  You see a needle protruding from a small hole beside the lock plate with a little of your blood on it!$",
+		"^There is a tiny flash from the keyhole and suddenly your entire body jerks from a massive electrical shock\\.\\.\\.$",
+		"^While attemping to scrape away the rough, grainy substance that lines the walls of the casing, your file slips and jars against the interior of the lock just hard enough to give off a single spark\\.  Just as the spark comes to life, a strong scent of sulphur reaches your nostrils\\.  You have enough time to gasp in shock, as two volatile substances meet and ignite into a stream of fire which issues forth from the lock!  Your body is savagely immolated by the flames!$",
+		"^Your heart skips a beat as you hear a small sizzle from the .+'s keyhole\\.  You begin to jump back, but not in time as the entire .+ explodes in a deafening, fiery detonation!$"]
+
+
+def pickbox()
+	waitrt?
+	fput "pick right"
+	openMsgs = ["Then...CLICK!  It opens!", "It does not appear to be locked", "the tumblers snap open"]
+	found = matchtimeout 2, openMsgs
+	if found == false
+		pickbox()
+	else
+		waitrt?
+		fput "put my lockpick in my " + @lockpickContainer
+		exit	
+	end	
+end
+def disarmbox()
+	timesToTry = 3
+	noneMsgs = ["You discover no traps."]
+	trapMsgs = ["Peering into the box's lock, you see a small tube towards the bottom of the tumbler mechanism.",
+				]
+	while(timesToTry > 0)
+		timesToTry--
+		waitrt?
+		fput "disarm right"
+	end
+end
+
+if (@rightHand.nil?)
+	respond "Pick what?"
+	abort!
+elsif not @boxTypes.include? @rightHand
+	respond "You can't pick a " + @rightHand + "!";
+	abort!
+elsif not ("lockpick" == checkleft)
+	if variable[1].nil?
+		respond "No lockpick specified."
+		exit
+	else 
+		result = fput "get my " + variable[1] + " lockpick from my " + @lockpickContainer
+		if result == "Get What?"
+			exit
+		end
+		pickbox()
+	end
+else
+	pickbox()	
+end
