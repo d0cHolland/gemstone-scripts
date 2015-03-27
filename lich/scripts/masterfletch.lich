@@ -1,0 +1,68 @@
+#MasterFletcher - By d0cHolland
+
+#Personal Settings
+@projectileType = "arrow" #e.g. "arrow" or "heavy bolt"
+@container = nil; #e.g."sack"
+@handaxe = nil; #e.g "handaxe"
+@dagger = nil; #e.g. "dagger"
+@wood = nil : #e.g. "branch", "limb", "stick", etc..
+@painting = false; #True if you want to paint shafts, false if not
+@paint = "paint";
+@bow = "yumi"; 
+@tipType = "arrowhead"
+#Store Settings
+
+def mf_make_shafts()
+ waitrt?
+ fput "CUT " + @projectileType + "FROM MY " + @wood + "WITH MY " + @handaxe;
+end
+
+def mf_par_shaft()
+ waitrt?
+ fput "CUT MY SHAFT WITH MY " + @dagger;
+end
+
+def mf_paint_shaft()
+ waitrt?
+ fput "PAINT MY SHAFT WITH MY "
+end
+
+def mf_nock_shaft()
+ waitrt?
+ fput "CUT NOCKS IN MY SHAFT WITH MY " + @dagger;
+end
+
+def mf_measure_shaft()
+ waitrt?
+ fput "MEASURE MY SHAFT WITH MY " + @bow;
+end
+
+def mf_cut_shaft()
+ waitrt?
+ fput "CUT MY SHAFT WITH MY " + @bow;
+end
+
+def mf_glue_shaft()
+ waitrt?
+ fput "PUT MY GLUE ON MY SHAFT";
+end
+
+def mf_add_fletching()
+ waitrt?
+ fput "PUT MY FLETCHING ON MY SHAFT";
+end
+
+def mf_whittle_tip()
+ waitrt?
+ fput "CUT MY SHAFT WITH MY " + @dagger;
+end
+
+def mf_drill_shaft()
+ waitrt?
+ fput "TURN MY DRILL";
+end
+
+def mf_add_tip()
+ waitrt?
+ fput "TURN MY " @tipType;
+end
