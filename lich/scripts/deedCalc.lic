@@ -7,19 +7,5 @@ deeds = matchfind "Deeds: ?"
 cost = 101 + (level * 100) + (deeds.to_i * 100)
 gemcost = cost/3
 respond "Your next deed will cost you " + cost.to_s + " silvers or " + gemcost.to_s + " silvers worth of gems."
-	#failMsgs = ["Your lockpick gets stuck in the lock!", "You are not able to pick the lock, but you get a feeling that it is within your abilities.", "Your lockpick gets stuck in the lock!" ]
-	#brokeMsgs = ["You broke your lockpick in the attempt!", "you are using a broken lockpick."]
-	#waitrt?
-PICK:
-	waitrt?
-	MATCH "UNLOCKED", "Then...CLICK!  It opens!"
-	MATCH "UNLOCKED", "It does not appear to be locked"
-	MATCH "UNLOCKED", "the tumblers snap open"
-	MATCH "PICK", 
-	fput "pick my " + rightHand + " with my lockpick"
-}
-UNLOCKED:
-	waitrt?
-	fput "put my lockpick in my " + lockpickContainer
-	exit
+	
 	

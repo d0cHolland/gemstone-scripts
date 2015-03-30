@@ -104,6 +104,7 @@ def pickbox()
 	waitrt?
 	fput "pick right"
 	openMsgs = ["Then...CLICK!  It opens!", "It does not appear to be locked", "the tumblers snap open"]
+	failedMsgs = ["You are not able to pick the lock, but you get a feeling that it is within your abilities."]
 	found = matchtimeout 2, openMsgs
 	if found == false
 		pickbox()
@@ -116,8 +117,7 @@ end
 def disarmbox()
 	timesToTry = 3
 	noneMsgs = ["You discover no traps."]
-	trapMsgs = ["Peering into the box's lock, you see a small tube towards the bottom of the tumbler mechanism.",
-				]
+	
 	while(timesToTry > 0)
 		timesToTry--
 		waitrt?

@@ -1,0 +1,9 @@
+picks = [["copper", 1.00],["steel", 1.10],["ivory", 1.20],["gold", 1.20],["silver", 1.30],["mithril", 1.45],["ora", 1.55],["glaes", 1.60],["laje", 1.75],["vultite", 1.80],["rolaren", 1.90],["veniom", 2.20],["invar", 2.25],["alum", 2.30],["golvern", 2.30],["kelyn", 2.40],["vaalin", 2.60]];
+lockDifficulty = variable[1].to_f;
+#formula
+#((Picking Locks skill + Dexterity bonus) * Pick modifier) + lock difficulty (negative number) + d100 roll
+skillBonus = Skills.to_bonus(Skills.pickinglocks) + Stats.dex[1];
+multiplier = lockDifficulty/skillBonus;
+suggestion = picks.select{ |x| x[1] >= multiplier}.first.first
+
+respond "I would recommend you use a " + suggestion + " lockpick or better.";
