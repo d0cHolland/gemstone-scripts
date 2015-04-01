@@ -14,6 +14,7 @@
 @settings['fletch_fletchings'] ||= "bundle of fletchings" 
 @settings['fletch_limit'] ||= ""
 @settings['fletch_drop'] ||= false
+@settings['timeout_duration'] ||= 3
 @container_contents = nil
 @needed_items = nil
 @start_time = Time.now
@@ -88,6 +89,7 @@ before_dying{;UpstreamHook.remove('fletching_hook');}
 			'fletch_fletchings' => 'The name of the fletchings you would like to buy, leaving off a/an/some at the start.',
 			'fletch_tip' => 'The name of the arrowhead or cap you wish to add.',
 			'fletch_limit' => 'This is the number of arrows you would like the script to make, leave blank for no limit. It will just keep making more till you tell it to stop, run out of space or run out of money.',
+			'timeout_duration' => 'This number is how many seconds the script will allow for certain actions before timing out. Increasing the number may help in times that the game is lagging.'
 		}
 		
 		gtk_global['fletch_sack'] = Gtk::Entry.new.set_text(@settings['fletch_sack'])
@@ -105,6 +107,7 @@ before_dying{;UpstreamHook.remove('fletching_hook');}
 		gtk_global['fletch_fletchings'] = Gtk::Entry.new.set_text(@settings['fletch_fletchings'])
 		gtk_global['fletch_limit'] = Gtk::Entry.new.set_text(@settings['fletch_limit'].to_s)
 		gtk_global['waggle'] = Gtk::CheckButton.new.set_active(@settings['waggle'])
+		gtk_global['timeout_duration'] = Gtk::Entry.new.set_text(@settings['timeout_duration'].to_s)
 		
 		#use @paints array to form combox
 		x = 0
@@ -204,6 +207,11 @@ before_dying{;UpstreamHook.remove('fletching_hook');}
 		hb = Gtk::HBox.new(false,1)
 		hb.pack_start(Gtk::Alignment.new(1,0,0,1).add(Gtk::Label.new('Make limit: ')).set_width_request(120))
 		hb.pack_start(gtk_global['fletch_limit'],false)
+		vb_pg1_1.pack_start(hb,false)
+		
+		hb = Gtk::HBox.new(false,1)
+		hb.pack_start(Gtk::Alignment.new(1,0,0,1).add(Gtk::Label.new('Make limit: ')).set_width_request(120))
+		hb.pack_start(gtk_global['timeout_duration'],false)
 		vb_pg1_1.pack_start(hb,false)
 		
 		hb = Gtk::HBox.new(false,1)
@@ -425,10 +433,10 @@ def get_container_contents(container_name)
 			sleep 1
 		else
 			if container_contents.contents.nil?
-				open_result = dothistimeout "open ##{container_contents.id}", 10, /You open|already open/
+				open_result = dothistimeout "open ##{container_contents.id}", @settings['timeout_duration'].to_i, /You open|already open/
 				close_container_contents = true if open_result =~ /You open/
 				if container_contents.contents.nil?
-					dothistimeout "look in ##{container_contents.id}", 10, /In the .* you see/
+					dothistimeout "look in ##{container_contents.id}", @settings['timeout_duration'].to_i, /In the .* you see/
 					if container_contents.contents.nil?
 						echo "warning: failed to find the contents of your fletchsack (#{container_name})"
 						sleep 1
@@ -571,7 +579,7 @@ def buy_items()
 				break
 			end
 		}
-		stow_check = dothistimeout "put my #{checkright} in my #{@settings['fletch_sack']}", 3, /won't fit|You put a/
+		stow_check = dothistimeout "put my #{checkright} in my #{@settings['fletch_sack']}", @settings['timeout_duration'].to_i, /won't fit|You put a/
 		if stow_check =~ /won't fit/
 			echo "fletchsack full, stopping"
 			exit
@@ -622,7 +630,7 @@ end
 
 def getItem(item)
 	waitrt?
-	check = dothistimeout "get #{item}", 10, /You remove|You reach for|get what?/
+	check = dothistimeout "get #{item}", @settings['timeout_duration'].to_i, /You remove|You reach for|get what?/
 	if check =~ /get what?/
 		echo "Could not get your axe to cut the shafts"
 		return false;
@@ -734,7 +742,7 @@ def bundle()
 					fput "get ##{id} in my #{@settings['fletch_quiver']}"
 				end
 				if !checkleft.nil? and !checkright.nil?
-					check = dothistimeout "bundle", 3, /You bundle your arrows together.|You add a .+ arrow to your bundle.|You may not combine more than 100 shafts./
+					check = dothistimeout "bundle", @settings['timeout_duration'].to_i, /You bundle your arrows together.|You add a .+ arrow to your bundle.|You may not combine more than 100 shafts./
 					if check.nil?
 						echo "bundling failed for some reason, stopping"
 						exit
@@ -853,7 +861,7 @@ def bundle()
 end
 
 def getBow()
-	check = dothistimeout "remove my #{@settings['fletch_bow']}", 10, /You sling|remove what?/
+	check = dothistimeout "remove my #{@settings['fletch_bow']}", @settings['timeout_duration'].to_i, /You sling|remove what?/
 	if check =~ /remove what?/
 		echo "Failed to get your bow."
 		exit
@@ -924,10 +932,10 @@ def mf_paint_shaft()
 			end
 		}
 		haste!
-		check = dothistimeout "paint my shaft", 3, /You carefully smear a bit of paint/
+		check = dothistimeout "paint my shaft", @settings['timeout_duration'].to_i, /You carefully smear a bit of paint/
 		if check.nil?
 			#if the first check failed for some reason double check by looking at the arrow
-			check = dothistimeout "look my shaft", 3, /The arrow shaft has been pared down and smoothed.$|The arrow shaft has been pared down and smoothed.  A coat of .+ paint covers the shaft./
+			check = dothistimeout "look my shaft", @settings['timeout_duration'].to_i, /The arrow shaft has been pared down and smoothed.$|The arrow shaft has been pared down and smoothed.  A coat of .+ paint covers the shaft./
 			if check !~ /The arrow shaft has been pared down and smoothed.  A coat of .+ paint covers the shaft./
 				echo "Could not determine if painting was succesful, stopping"
 				exit
@@ -958,10 +966,10 @@ def mf_paint_shaft()
 			end
 		}
 		haste!
-		check = dothistimeout "paint my shaft", 3, /You carefully apply a band of/
+		check = dothistimeout "paint my shaft", @settings['timeout_duration'].to_i, /You carefully apply a band of/
 		if check.nil?
 			#if the first check failed for some reason double check by looking at the arrow
-			check = dothistimeout "look my shaft", 3, /It looks like someone has painted a single .+ band on the end/
+			check = dothistimeout "look my shaft", @settings['timeout_duration'].to_i, /It looks like someone has painted a single .+ band on the end/
 			if check !~ /It looks like someone has painted a single .+ band on the end/
 				echo "Could not determine if painting was succesful, stopping"
 				exit
@@ -993,10 +1001,10 @@ def mf_paint_shaft()
 			end
 		}
 		haste!
-		check = dothistimeout "paint my shaft", 3, /You carefully apply a band of/
+		check = dothistimeout "paint my shaft", @settings['timeout_duration'].to_i, /You carefully apply a band of/
 		if check.nil?
 			#if the first check failed for some reason double check by looking at the arrow
-			check = dothistimeout "look my shaft", 3, /It looks like someone has painted a pair of .+ and .+ bands on the end.|It looks like someone has painted a single .+ band on the end/
+			check = dothistimeout "look my shaft", @settings['timeout_duration'].to_i, /It looks like someone has painted a pair of .+ and .+ bands on the end.|It looks like someone has painted a single .+ band on the end/
 			if check !~ /It looks like someone has painted a pair of .+ and .+ bands on the end.|It looks like someone has painted a single .+ band on the end/
 				echo "Could not determine if painting was succesful, stopping"
 				exit
@@ -1023,12 +1031,12 @@ end
 def mf_measure_shaft()
 	waitrt?
 	getBow();
-	check = dothistimeout "measure my shaft with my #{@settings['fletch_bow']}", 3, /When the bow string reaches optimal tension, you carefully un-nock the shaft and ease the string forward while grasping the shaft with your left hand to mark the length until you can make a tiny cut on the shaft./
+	check = dothistimeout "measure my shaft with my #{@settings['fletch_bow']}", @settings['timeout_duration'].to_i, /When the bow string reaches optimal tension, you carefully un-nock the shaft and ease the string forward while grasping the shaft with your left hand to mark the length until you can make a tiny cut on the shaft./
 	if check.nil?
 		failed("failed to measure, do something about this later");
 	end
 	waitrt?
-	check = dothistimeout "wear my #{@settings['fletch_bow']}", 3, /You sling .+ over your shoulder./
+	check = dothistimeout "wear my #{@settings['fletch_bow']}", @settings['timeout_duration'].to_i, /You sling .+ over your shoulder./
 	if check.nil?
 		echo "failed to wear bow, do something about this later"
 		exit
@@ -1038,7 +1046,7 @@ end
 def mf_cut_shaft()
 	waitrt?
 	getItem(@settings['fletch_knife']);
-	check = dothistimeout "cut my shaft with my  #{@settings['fletch_knife']}", 3, /Using your previous mark as a guide, you cleanly slice the end off the arrow shaft.|You might want to think about attaching fletchings first./
+	check = dothistimeout "cut my shaft with my  #{@settings['fletch_knife']}", @settings['timeout_duration'].to_i, /Using your previous mark as a guide, you cleanly slice the end off the arrow shaft.|You might want to think about attaching fletchings first./
 	if check.nil?
 		failed("failed to cut shaft, do something about this later");
 	end
@@ -1048,7 +1056,7 @@ end
 
 def mf_glue_shaft()
 	waitrt?
-	check = dothistimeout "get my glue", 10, /You remove|Get what?/
+	check = dothistimeout "get my glue", @settings['timeout_duration'].to_i, /You remove|Get what?/
 	if check =~ /Get what?/
 		mf_buyIfOut();
 		getItem("shaft");
@@ -1057,7 +1065,7 @@ def mf_glue_shaft()
 	elsif check.nil?
 		failed("Could not get your glue.")
 	end 
-	check = dothistimeout "put my glue on my shaft", 3, /You carefully smear a bit of glue/
+	check = dothistimeout "put my glue on my shaft", @settings['timeout_duration'].to_i, /You carefully smear a bit of glue/
 	if check.nil?
 		failed("failed, do something about this later");
 	end
@@ -1068,7 +1076,7 @@ end
 def mf_add_fletching()
 	mf_glue_shaft();
 	waitrt?
-    check = dothistimeout "get 3 my fletching", 10, /You remove|You reach for|Get what?/
+    check = dothistimeout "get 3 my fletching", @settings['timeout_duration'].to_i, /You remove|You reach for|Get what?/
 	if check =~ /Get what?/
 		mf_buyIfOut();
 		mf_add_fletching();
@@ -1076,7 +1084,7 @@ def mf_add_fletching()
 		failed("Could not get your fletchings.")
 	end 
 
-	check = dothistimeout "put my fletching on my shaft", 3, /You attach your|Unfortunately, the glue is now too dry to remove them and try again, so you discard|Luckily, you are able to salvage the shaft./
+	check = dothistimeout "put my fletching on my shaft", @settings['timeout_duration'].to_i, /You attach your|Unfortunately, the glue is now too dry to remove them and try again, so you discard|Luckily, you are able to salvage the shaft./
 	if check =~/Unfortunately, the glue is now too dry to remove them and try again, so you discard /
 		waitrt?
 		return
