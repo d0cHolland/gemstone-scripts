@@ -8,6 +8,7 @@
 @settings['fletch_paint'] ||= 0
 @settings['fletch_paintstick1'] ||= ""
 @settings['fletch_paintstick2'] ||= ""
+@settings['fletch_tip'] ||= ""
 @settings['fletch_wood'] ||= "limb of wood"
 @settings['fletch_axe'] ||= ""
 @settings['fletch_fletchings'] ||= "bundle of fletchings" 
@@ -85,6 +86,7 @@ before_dying{;UpstreamHook.remove('fletching_hook');}
 			'fletch_paintstick1' => 'Leave blank if you do not want to use a paintstick to crest your arrows. If you want to crest you arrows please enter the colour of the paintstick.',
 			'fletch_paintstick2' => 'Leave blank if you do not want to use a paintstick to crest your arrows a second time. If you want to crest you arrows a second time please enter the colour of the paintstick.',
 			'fletch_fletchings' => 'The name of the fletchings you would like to buy, leaving off a/an/some at the start.',
+			'fletch_tip' => 'The name of the arrowhead or cap you wish to add.',
 			'fletch_limit' => 'This is the number of arrows you would like the script to make, leave blank for no limit. It will just keep making more till you tell it to stop, run out of space or run out of money.',
 		}
 		
@@ -99,6 +101,7 @@ before_dying{;UpstreamHook.remove('fletching_hook');}
 		gtk_global['fletch_paint'] = Gtk::ComboBox.new(is_text_only = true)
 		gtk_global['fletch_paintstick1'] = Gtk::Entry.new.set_text(@settings['fletch_paintstick1'])
 		gtk_global['fletch_paintstick2'] = Gtk::Entry.new.set_text(@settings['fletch_paintstick2'])
+		gtk_global['fletch_tip'] = Gtk::Entry.new.set_text(@settings['fletch_tip'])
 		gtk_global['fletch_fletchings'] = Gtk::Entry.new.set_text(@settings['fletch_fletchings'])
 		gtk_global['fletch_limit'] = Gtk::Entry.new.set_text(@settings['fletch_limit'].to_s)
 		gtk_global['waggle'] = Gtk::CheckButton.new.set_active(@settings['waggle'])
@@ -191,6 +194,11 @@ before_dying{;UpstreamHook.remove('fletching_hook');}
 		hb = Gtk::HBox.new(false,1)
 		hb.pack_start(Gtk::Alignment.new(1,0,0,1).add(Gtk::Label.new('Fletchings: ')).set_width_request(120))
 		hb.pack_start(gtk_global['fletch_fletchings'],false)
+		vb_pg1_1.pack_start(hb,false)
+		
+		hb = Gtk::HBox.new(false,1)
+		hb.pack_start(Gtk::Alignment.new(1,0,0,1).add(Gtk::Label.new('Tip Name: ')).set_width_request(120))
+		hb.pack_start(gtk_global['fletch_tip'],false)
 		vb_pg1_1.pack_start(hb,false)
 		
 		hb = Gtk::HBox.new(false,1)
@@ -662,18 +670,18 @@ def bundle()
 	#gameobj does not get full descriptions so have to go about it ma self
 	quiver_contents_string = nil
 	quiver_contents = proc{|server_string|
-		if server_string =~ /<inv id='\w+'>In the <a exist="\d+" noun="\w+">\w+<\/a>:<\/inv><inv id='\w+'>/
+		respond server_string
+		if server_string =~ /^\AIn the <a exist="\d+" noun="\w+">\D+<\/a> you see a/		
 			quiver_contents_string = server_string
 			nil
-		else
-			
+		else			
 			server_string
 		end
 	}
-	DownstreamHook.add('fletch_check_quiver', quiver_contents)
-	silence_me
+	DownstreamHook.add('fletch_check_quiver', quiver_contents)	
+	#silence_me
 	fput "look in my #{@settings['fletch_quiver']}"
-	silence_me
+	#silence_me	
 	endtime = Time.now + 3
 	loop {
 		if quiver_contents_string != nil
@@ -688,10 +696,10 @@ def bundle()
 		end
 	}
 	
-	if quiver_contents_string =~ /<inv id='(?:\w+)'>In the <a exist="(\d+)" noun="(\w+)">(?:\w+)<\/a>:<\/inv><inv id='(?:\w+)'> (.*)<\/inv>In the <a exist="\d+" noun="\w+">([\w\s\-']+)<\/a>/
+	if quiver_contents_string =~ /^\AIn the <a exist="(\d+)" noun="(\w+)">(?:\D+)<\/a>/
+		respond $3.to_s
 		quiver_contents = $3.to_s.gsub( /["]/ , '\'' )
-		quiver_contents = quiver_contents.split(/<\/inv><inv id='\w+'>\s?/)
-		
+		quiver_contents = quiver_contents.split(/<\/a><a exist='\w+'>\s?/)		
 	else
 		echo "contents malformed"
 	end
@@ -1103,12 +1111,27 @@ end
 
 def mf_drill_shaft()
  waitrt?
- fput "TURN MY DRILL";
+ getItem("drill"); 
+ fput "turn my drill"
+ waitrt?
+ stowleft();
 end
 
 def mf_add_tip()
- waitrt?
- fput "TURN MY #{@tipType}";
+	waitrt?
+	mf_drill_shaft();
+	waitrt?
+	getItem(@settings['fletch_tip']);
+	fput "turn my #{@settings['fletch_tip']}"
+	waitrt?
+end
+
+def mf_make_tip()
+	if(@settings['fletch_tip'].nil?)
+		mf_whittle_tip();
+	else
+		mf_add_tip();
+	end
 end
 
 def mf_make_arrow()
@@ -1151,7 +1174,7 @@ def mf_make_arrow()
 		return
 	end
 	
-	mf_whittle_tip();
+	mf_make_tip();
 end
 
 def startup()
