@@ -8,7 +8,7 @@
 @settings['fletch_paint'] ||= 0
 @settings['fletch_paintstick1'] ||= ""
 @settings['fletch_paintstick2'] ||= ""
-@settings['fletch_tip'] ||= ""
+@settings['fletch_tip'] ||= nil
 @settings['fletch_wood'] ||= "limb of wood"
 @settings['fletch_axe'] ||= ""
 @settings['fletch_fletchings'] ||= "bundle of fletchings" 
@@ -676,9 +676,9 @@ end
 
 def bundle()
 	#gameobj does not get full descriptions so have to go about it ma self
+	
 	quiver_contents_string = nil
 	quiver_contents = proc{|server_string|
-		respond server_string
 		if server_string =~ /^\AIn the <a exist="\d+" noun="\w+">\D+<\/a> you see a/		
 			quiver_contents_string = server_string
 			nil
@@ -687,9 +687,9 @@ def bundle()
 		end
 	}
 	DownstreamHook.add('fletch_check_quiver', quiver_contents)	
-	#silence_me
+	
 	fput "look in my #{@settings['fletch_quiver']}"
-	#silence_me	
+	
 	endtime = Time.now + 3
 	loop {
 		if quiver_contents_string != nil
@@ -703,24 +703,25 @@ def bundle()
 			sleep 0.1
 		end
 	}
-	
-	if quiver_contents_string =~ /^\AIn the <a exist="(\d+)" noun="(\w+)">(?:\D+)<\/a>/
-		respond $3.to_s
+		
+	#if quiver_contents_string =~ /^\AIn the <a exist="(\d+)" noun="(\w+)">(?:\D+)<\/a>(?:\D+)</
+	if quiver_contents_string =~ /^\AIn the <a exist="(\d+)" noun="(\w+)">(?:\D+)<\/a> you see an? (.*)./	
 		quiver_contents = $3.to_s.gsub( /["]/ , '\'' )
-		quiver_contents = quiver_contents.split(/<\/a><a exist='\w+'>\s?/)		
+		quiver_contents = quiver_contents.scan(/<a exist='\d+' noun='\w+'>(?:\D+)<\/a>/)		
 	else
 		echo "contents malformed"
 	end
 	contents = Hash.new
 	quiver_contents.each{|item|
-		if item =~ /(.+)<a exist='(\d+)' noun='([\w\-]+)'>([\w\s\-']+)<\/a>([\s\w'\-]+)?/
-			item_id = $2
-			item_noun = $3
-			item_full_name = ""
-			item_full_name = item_full_name.strip + "#{$1.strip}"
-			item_full_name = item_full_name.strip + " #{$4.strip} "
-			item_full_name = item_full_name.strip + " #{$5.strip}"
-			item_full_name.strip!
+		#if item =~ /(.+)<a exist='(\d+)' noun='([\w\-]+)'>([\w\s\-']+)<\/a>([\s\w'\-]+)?/
+		if item =~ /<a exist='(\d+)' noun='(\w+)'>(\D+)<\/a>/			
+			item_id = $1
+			item_noun = $2
+			item_full_name = $3.strip;
+#			item_full_name = item_full_name.strip + "#{$1.strip}"
+#			item_full_name = item_full_name.strip + " #{$4.strip} "
+#			item_full_name = item_full_name.strip + " #{$5.strip}"
+#			item_full_name.strip!
 		end
 		contents[item_id] = item_full_name
 	}
@@ -734,12 +735,12 @@ def bundle()
 	arrow_types.each{|desc|
 		contents.each_pair{|id,name|
 			if desc =~ /#{name}/
-				if checkright.nil?
-					fput "get ##{id} in my #{@settings['fletch_quiver']}"
+				if checkright.nil? 
+					fput "get ##{id} from my #{@settings['fletch_quiver']}"
 					endtime = Time.now + 6
 					wait_until{!checkright.nil? || Time.now > endtime}
 				else
-					fput "get ##{id} in my #{@settings['fletch_quiver']}"
+					fput "get ##{id} from my #{@settings['fletch_quiver']}"
 				end
 				if !checkleft.nil? and !checkright.nil?
 					check = dothistimeout "bundle", @settings['timeout_duration'].to_i, /You bundle your arrows together.|You add a .+ arrow to your bundle.|You may not combine more than 100 shafts./
@@ -747,14 +748,14 @@ def bundle()
 						echo "bundling failed for some reason, stopping"
 						exit
 					elsif check =~ /You may not combine more than 100 shafts./
-						fput "stow r"
+						fput "put right in my #{@settings['fletch_quiver']}"
 					end
 					endtime = Time.now + 6
 					wait_until{checkleft.nil? || Time.now > endtime}
 				end
 			end
 		}
-		fput "stow right"
+		fput "put right in my #{@settings['fletch_quiver']}"
 	}
 	#now arrows are bundled see about condensing the bundles down
 	bundle_ids = Array.new
@@ -855,8 +856,8 @@ def bundle()
 					end					
 				end
 			end
-		}
-		fput "stow r" if !checkright.nil?
+		}		
+		fput "put right in my #{@settings['fletch_quiver']}" if !checkright.nil?
 	}
 end
 
@@ -1135,7 +1136,7 @@ def mf_add_tip()
 end
 
 def mf_make_tip()
-	if(@settings['fletch_tip'].nil?)
+	if(@settings['fletch_tip'].nil? or @settings['fletch_tip'] == "")
 		mf_whittle_tip();
 	else
 		mf_add_tip();
@@ -1186,6 +1187,7 @@ def mf_make_arrow()
 end
 
 def startup()
+	silence_me
 	if variable[0] =~ /setup|config|configure/i
 		@setup.call
 		exit
@@ -1269,5 +1271,6 @@ def startup()
 		exit if @finished
 		exit if @settings['fletch_limit'].to_i > 0 and @arrows_made == @settings['fletch_limit'].to_i
 	}
+	silence_me
 end
 startup();
