@@ -1,0 +1,83 @@
+#d0cHolland's AutoWiz
+$target = nil;
+$targetTimeLeft = {};
+
+def CastSpell(spell, numOfCasts)
+	if Spell[spell].known? and Spell[spell].affordable? and checkmana.to_i > Spell[spell].cost.to_i 
+		waitcastrt?
+		numOfCasts.times { multifput "prep #{spell}", "cast at #{$target}"; waitcastrt?}		
+	end
+end
+
+def HoldTarget()
+	result = dothistimeout "hold #{$target}", 10, /You gently take hold|hand away from you.|is already a member of your group!/
+	if result =~ /hand away from you./
+		fput "whisper #{$target} Please join my group."
+		matchtimeout 10, "#{$target} joins your group."
+	end
+end
+
+def HasDisk()
+	return GameObj.loot.any? {|obj| obj.name =~ /#{$target} (?:disk|coffin)/} 
+end
+
+def Partial()
+	HoldTarget();
+	CastSpell(401, 1);
+	CastSpell(406, 1);
+	CastSpell(414, 1);
+	CastSpell(503, 1);
+	CastSpell(509, 1);
+	CastSpell(511, 1) if not HasDisk();
+	CastSpell(911, 1);
+	multifput "disband", "group open";
+end
+
+def Full()
+	HoldTarget();
+	CastSpell(401, HowManyCasts(401));
+	CastSpell(406, HowManyCasts(406));
+	CastSpell(414, HowManyCasts(414));
+	CastSpell(503, HowManyCasts(503));
+	CastSpell(509, HowManyCasts(509));
+	CastSpell(911, HowManyCasts(911));
+	CastSpell(511, 1) if not HasDisk();
+	multifput "disband", "group open";
+end
+
+def HowManyCasts(spell)
+	timeper = Spell[spell].time_per
+	if $targetTimeLeft[spell.to_s].nil?
+		return (240.0/timeper).to_i
+	else
+		if(240 - $targetTimeLeft[spell.to_s] > timeper)
+			return ((240 - $targetTimeLeft[spell.to_s])/timeper).to_i
+		else
+			echo "No Casts of #{Spell[spell.to_s].name} Needed. #{$targetTimeLeft[spell.to_s]} minutes remaining.}"
+			return 0
+		end
+	end
+end
+
+def GetTargetTimeLeft()
+	$targetTimeLeft = LNet.get_data($target, 'spells')
+	echo $targetTimeLeft
+end
+
+def Main()
+	loop{
+		wait_until{
+			get =~ /^([A-Z][a-z]+) whispers, "(.*)\."$/
+			$target = $1;
+			message = $2;
+			if message =~ /[Hh][Ii][Tt] [Mm][Ee] [Ff][Uu][Ll][Ll]/
+				GetTargetTimeLeft();				
+				Full();
+			elsif message =~ /[Hh][Ii][Tt] [Mm][Ee]/
+				Partial();
+			end
+		}
+	}
+end
+
+Main();
