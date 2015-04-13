@@ -1,0 +1,59 @@
+#MasterRogueGuild by d0cHolland
+def gambits(taskName)
+	if variable[3].nil?
+		echo "You must specify a gambit to use."
+		exit
+	end
+	if taskName.downcase == "speed"
+		gambit_speed(variable[3])	
+	elsif taskName.downcase =~ /a|au|aud|audi|audie|audien|audienc|audience/
+		gambit_audience(variable[3])
+	end
+end
+
+def gambit_speed(gambit)	
+	loop{
+		waitrt?
+		check = dothistimeout "rgam #{gambit}", 10, /You must succeed \d+ more times? within \d+ seconds?.|You have \d+ repetitions? remaining.|You have completed your training task.|Roundtime/
+		if check.nil?
+			echo "Did not see your gambit for some reason."
+			exit
+		elsif check =~/You have completed your training task./
+			echo "Task Complete"
+			exit
+		end
+	}
+end
+
+def gambit_audience(gambit)
+	loop{
+		waitrt?
+		check = dothistimeout "rgam #{gambit}", 10, /You have \d+ repetitions? remaining.|You have completed your training task.|Roundtime/
+		if check.nil?
+			echo "Did not see your gambit for some reason."
+			exit
+		elsif check =~/You have completed your training task./
+			echo "Task Complete"
+			exit
+		else
+			waitrt?
+		end
+		pause 30
+	}
+end
+
+def main()
+	if variable[1].nil?
+		echo "You must specify which skill you're training"
+		exit
+	elsif variable[2].nil?
+		echo "You must specify which task you've been given"
+		exit
+	end	
+	if variable[1].downcase =~ /g|ga|gam|gamb|gambi|gambit|gambits|rg|rgam|rgambits|rogue gambit|rogue gambits/
+		gambits(variable[2])
+	end
+end
+
+main();
+
