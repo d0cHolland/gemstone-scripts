@@ -3,10 +3,16 @@ $target = nil;
 $targetTimeLeft = {};
 
 def CastSpell(spell, numOfCasts)
-	if Spell[spell].known? and Spell[spell].affordable? and checkmana.to_i > Spell[spell].cost.to_i 
-		waitcastrt?
-		numOfCasts.times { multifput "prep #{spell}", "cast at #{$target}"; waitcastrt?}		
-	end
+	numOfCasts.times{
+		if Spell[spell].known? and Spell[spell].affordable? and checkmana > Spell[spell].cost.to_i 
+			multifput "prep #{spell}", "cast at #{$target}"; waitcastrt?
+		elsif Spell[spell].known? and checkspirit > 5
+			multifput "hide", "sign of wracking", "sit";			
+			multifput "prep #{spell}", "cast at #{$target}"; waitcastrt?
+		else 
+			return
+		end
+	}
 end
 
 def HoldTarget()
@@ -75,6 +81,14 @@ def Main()
 				Full();
 			elsif message =~ /[Hh][Ii][Tt] [Mm][Ee]/
 				Partial();
+			elsif message =~ /Disk [Pp]lease/
+				CastSpell(511, 1) if not HasDisk();
+			elsif message =~/Lock [Ll]ore/
+				CastSpell(403, 1);
+			elsif message =~/Trap [Ll]ore/
+				CastSpell(404, 1);
+			elsif message =~/Haste/
+				CastSpell(506, 1);
 			end
 		}
 	}
