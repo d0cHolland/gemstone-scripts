@@ -42,6 +42,70 @@ def gambit_audience(gambit)
 	}
 end
 
+def sweep(taskName)
+	if taskName.downcase =~ /masters?/
+		sweep_master();
+	elsif taskName.downcase =~/dummy|dummies/
+		sweep_dummy();
+	end
+end
+def sweep_master()
+	start_script "go2",[16540]
+	wait_while {running?("go2")}
+	master = checknpcs.first
+	if(master.nil?)
+		#Wait for Master
+		waitfor "returns from giving some private instructions and glances about, looking for more trainees."
+		master = checknpcs.first
+	end
+		multifput "stance off", "Ask #{master} about training sweep"
+		while line = get
+			if line =~ /Stand up, I'll show yas again./
+				waitrt?
+				fput "stand"
+			elsif line =~ /now you try on me/		
+				multifput "stance off", "gld stance off", "stand"
+				loop{
+					wait_until { checkstamina > 11 }
+					waitrt?				
+					result = dothistimeout "sweep #{master}", 10, /repetition(s) remaining|You have completed|You deftly regain your footing|Ow!  You fail to regain your footing./
+					if result =~ /You have completed/
+						multimove "out", "sw"
+						abort!
+					elsif result =~ /repetition(s) remaining/
+						waituntil "stands back up."
+					elsif result =~ /Ow!  You fail to regain your footing./
+						waitrt?
+						fput "stand"
+					end
+				}
+			end
+		end
+end
+def sweep_dummy()
+	start_script "go2",[16509]
+	wait_while {running?("go2")}
+	move "go dumm"
+	
+	multifput "stance off", "gld stance off"
+	loop{
+		wait_until { checkstamina > 11 } 
+		waitrt?				
+		result = dothistimeout "sweep dummy", 10, /repetition(s) remaining|You have completed|You deftly regain your footing|Ow!  You fail to regain your footing.|mocking you with silent laughter.|The dummy has fallen off its post, you'll need to FIX it.|The dummy is swinging back and forth/
+		if result =~ /You have completed/
+			multimove "out", "se"
+			abort!
+		elsif result =~ /Ow!  You fail to regain your footing./
+			waitrt?
+			fput "stand"
+		end
+		waitrt?
+		fput "fix dummy"
+		waitrt?
+		fput "touch dummy"
+	}
+end
+		
 def main()
 	if variable[1].nil?
 		echo "You must specify which skill you're training"
@@ -52,6 +116,8 @@ def main()
 	end	
 	if variable[1].downcase =~ /g|ga|gam|gamb|gambi|gambit|gambits|rg|rgam|rgambits|rogue gambit|rogue gambits/
 		gambits(variable[2])
+	elsif variable[1] =~ /sweep/
+		sweep(variable[2])
 	end
 end
 
